@@ -1,0 +1,23 @@
+---
+title: "Visualization1"
+author: "esis"
+date: "8 Juli 2019"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(plyr)
+full_trains <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-02-26/full_trains.csv")
+
+dat <- ddply(full_trains[full_trains$departure_station%in%c("PARIS EST", "PARIS LYON", "PARIS NORD", "PARIS MONTPARNASSE", "PARIS VAUGIRARD"),], .(departure_station, year, month), summarise, M = mean(num_of_canceled_trains))
+dat$month <- factor(dat$month, labels=month.name)
+
+ggplot(dat, aes(departure_station, M, colour=departure_station)) + 
+  geom_jitter(alpha=.5, show.legend = F, width = .2) + 
+  facet_wrap(~year) + 
+  coord_flip() + 
+  labs(x="", y="", title = "Cancelled Trains from Paris Railway Stations by Year", subtitle = "Average Number of Cancellations per month") + 
+  geom_label(data = subset(dat, as.integer(month) %in% c(4:6) & year == 2018), aes(departure_station, M, label=month), position = position_dodge2(.8)) + theme(legend.position="none")
+```
+
